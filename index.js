@@ -24,43 +24,142 @@ const params = {
   FORMAT_TYPE: 'Text'
 }
 
-// For CMD=Delete
-const deleteParams = {
-  RID: ''
+const common = {
+  definitions: {
+    RID: {
+      type: 'string',
+      description: 'Request ID'
+    },
+    alignments: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Number of alignments to print (for Text,HTML)'
+    },
+    hitlistSize: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Number of database sequences to keep'
+    },
+    descriptions: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Number of descriptions to print (for Text,HTML)'
+    },
+    formatType: {
+      type: 'string',
+      enum: [ 'HTML', 'Text', 'XML', 'XML2', 'JSON2', 'Tabular' ],
+      description: 'Report type'
+    },
+    NCBI_GI: {
+      type: 'string',
+      enum: [ 'T', 'F' ],
+      description: 'Show NCBI GIs in report'
+    }
+  }
 }
+
+// For CMD=Delete
+const deleteSchema = Object.assign({}, common, {
+  type: 'object',
+  properties: {
+    RID: { '$ref', '#/definitions/RID' }
+  },
+  required: [ 'RID' ]
+})
 
 // For CMD=Get
-const getParams = {
-  FORMAT_TYPE: 'Text',
-  HITLIST_SIZE: 50,
-  DESCRIPTIONS: 10,
-  ALIGNMENTS: 10,
-  NCBI_GI: 'T',
-  RID: '',
-  FORMAT_OBJECT: 'SearchInfo' // SearchInfo (status check) or Alignment (report formatting)
-}
+const getSchema = Object.assign({}, common, {
+  type: 'object',
+  properties: {
+    RID: { '$ref', '#/definitions/RID' },
+    formatType: { '$ref', '#/definitions/formatType' },
+    hitlistSize: { '$ref', '#/definitions/hitlistSize' },
+    descriptions: { '$ref', '#/definitions/descriptions' },
+    alignments: { '$ref', '#/definitions/alignments' },
+    NCBI_GI: { '$ref', '#/definitions/NCBI_GI' },
+    formatObject: {
+      type: 'string',
+      enum: [ 'SearchInfo', 'Alignment' ],
+      description: 'SearchInfo (status check) or Alignment (report formatting)'
+    }
+  },
+  required: [ 'RID' ]
+})
 
 // For CMD=Put
-const putParams = {
-  QUERY: 'F4IWH1_ARATH', // Accession, GI, or FASTA; Search query
-  DATABASE: 'nr', // See appendix 2
-  PROGRAM: 'blastp', // blastn, megablast, blastp, blastx, tblastn, tblastx
-  FILTER: 'F', // T or L to enable, prepend m for mask lookup (e.g. mL); Low complexity filtering
-  FORMAT_TYPE: 'JSON2', // HTML, Text, XML, XML2, JSON2, Tabular; Report type
-  EXPECT: 1.0, // Double greater than 0; Expect value
-  NUCL_REWARD: 1, // Integer greater than 0; Reward for matching bases (blastn and megablast)
-  NUCL_PENALTY: -1, // Integer less than 0; Cost for mismatched bases (blastn and megablast)
-  GAPCOSTS: '11 1', // Pair of positive integers separated by a space; Gap existence and extension costs
-  MATRIX: 'BLOSUM62', // BLOSUM45, BLOSUM50, BLOSUM62, BLOSUM80, BLOSUM90, PAM250, PAM30, PAM70
-  HITLIST_SIZE: 250, // Integer greater than 0; Number of database sequences to keep
-  DESCRIPTIONS: 10, // Integer greater than 0; Number of descriptions to print (for Text,HTML)
-  ALIGNMENTS: 10, // Integer greater than 0; Number of alignments to print (for Text, HTML)
-  NCBI_GI: 'T', // T or F; Show NCBI GIs in report
-  THRESHOLD: 11, // Positive integer; Neighboring score for initial words
-  WORD_SIZE: 6, // Positive integer; Size of word for initial matches
-  COMPOSITION_BASED_STATISTICS: 0, // One of 0,1,2,3. See comp_based_stats in BLAST manual
-  NUM_THREADS: 1, // Integer greater than 0, supported only on the cloud
-}
+const putSchema = Object.assign({}, common, {
+  type: 'object',
+  properties: {
+    query: {
+      type: 'string',
+      description: 'Accession, GI, or FASTA'
+    },
+    database: {
+      type: 'string',
+      enum: [ 'nr', 'refseq_protein', 'landmark', 'swissprot', 'pat', 'pdb', 'env_nr', 'tsa_nr' ],
+      description: 'Search database'
+    },
+    program: {
+      type: 'string',
+      enum: [ 'blastn', 'blastp', 'blastx', 'tblastn', 'tblastx', 'megablast' ],
+      description: 'Program'
+    },
+    filter: {
+      type: 'string',
+      enum: [ 'F', 'T', 'L', 'mT', 'mL' ],
+      description: 'Low complexity filtering'
+    },
+    formatType: { '$ref', '#/definitions/formatType' },
+    expect: {
+      type: 'number',
+      minimum: 0,
+      description: 'Expect value'
+    },
+    nucleotideReward: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Reward for matching bases (blastn and megablast)'
+    },
+    nucleotidePenalty: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Cost for mismatched bases (blastn and megablast)'
+    },
+    gapcosts: {
+      type: 'string',
+      description: 'Gap existence and extension costs; Pair of positive integers separate by a space, e.g. "11 1"'
+    },
+    matrix: {
+      type: 'string',
+      enum: [ 'PAM30', 'PAM70', 'PAM250', 'BLOSUM45', 'BLOSUM50', 'BLOSUM62', 'BLOSUM80', 'BLOSUM90' ]
+    },
+    hitlistSize: { '$ref', '#/definitions/hitlistSize' },
+    descriptions: { '$ref', '#/definitions/descriptions' },
+    alignments: { '$ref': '#/definitions/alignments' },
+    NCBI_GI: { '$ref', '#/definitions/NCBI_GI' },
+    threshold: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Neighboring score for initial words'
+    },
+    wordSize: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Size of word for initial matches'
+    },
+    compositionBasedStatistics: {
+      type: 'integer',
+      enum: [ 0, 1, 2, 3 ],
+      description: 'See comp_based_stats in BLAST manual'
+    },
+    numThreads: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Supported only on the cloud'
+    }
+  },
+  required: [ 'query', 'database', 'program' ]
+})
 
 const getOutstream = () => outfile === '-' ? process.stdout : fs.createWriteStream(outfile)
 
