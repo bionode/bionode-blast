@@ -18,7 +18,7 @@ for (let i = 0; i < alignments.length; i++) {
   const alignment = alignments[i]
 
   for (let j = 0; j < alignment.description.length; j++) {
-    outStream.write(alignment.description[j].id + '\n')
+    outStream.write('>' + alignment.description[j].id + '\n')
   }
 
   for (let j = 0; j < alignment.hsps.length; j++) {
