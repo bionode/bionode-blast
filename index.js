@@ -2,8 +2,8 @@
 
 const fs = require('fs')
 
-const submit = require('./lib/submit.js')
-const pollUntil = require('./lib/pollUntil.js')
+// const submit = require('./lib/submit.js')
+// const pollUntil = require('./lib/pollUntil.js')
 const retrieve = require('./lib/retrieve.js')
 
 const RID = process.argv[2]
