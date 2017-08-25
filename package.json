@@ -14,6 +14,10 @@
     "bioinformatics",
     "blast"
   ],
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "standard && dependency-check . && mocha"
+  },
   "author": "Julian Mazzitelli <mazzitelli.julian@gmail.com>",
   "license": "MIT",
   "bugs": {
