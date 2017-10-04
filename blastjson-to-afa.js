@@ -7,7 +7,6 @@ const outFile = process.argv[3]
 
 const results = JSON.parse(fs.readFileSync(inFile, 'utf-8'))
 
-
 const alignments = results.BlastOutput2.report.results.search.hits
 
 const getOutStream = () => outFile === '-' ? process.stdout : fs.createWriteStream(outFile)
